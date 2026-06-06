@@ -1,0 +1,37 @@
+spring:
+  # 数据源配置（适配MySQL 8.4.0，优化连接池性能）
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource # 高性能连接池，替代旧版Druid，配置更简洁
+    driver-class-name: com.mysql.cj.jdbc.Driver # MySQL 8.x驱动类，不可写错
+    url: jdbc:mysql://127.0.0.1:3306/blog?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: root # 数据库用户名，默认root
+    password: root # 数据库密码，根据自身数据库密码修改
+    hikari:
+      pool-name: DataSourceHikariCP # 连接池名称
+      connection-timeout: 30000 # 连接超时时间（30秒）
+      minimum-idle: 5 # 最小空闲连接数
+      maximum-pool-size: 20 # 最大连接数，适配高并发
+      auto-commit: true # 自动提交事务
+      idle-timeout: 600000 # 空闲连接超时时间（10分钟）
+      max-lifetime: 18000000 # 连接最大生命周期（5小时）
+      connection-test-query: SELECT 1 # 连接测试语句，确保连接有效
+
+  ai:
+    ollama:
+      base-url: http://127.0.0.1:11434 # Ollama服务地址，默认127.0.0.1:11434
+      chat:
+        model: deepseek-r1:1.5b # 本地部署的DeepSeek模型名称，需与Ollama中安装的一致
+        temperature: 0.7 # 生成内容的随机性，0-1之间，越小越精准，越大越灵活
+        max-tokens: 2048 # 最大生成token数，避免生成内容过长，占用过多资源
+
+# MyBatis-Plus配置（优化日志和ID生成策略）
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl # 打印SQL日志，便于开发调试
+  global-config:
+    db-config:
+      id-type: assign_id # 自动生成ID，避免ID冲突
+      update-strategy: not_empty # 更新策略，仅更新非空字段
+  mapper-locations: classpath*:/mapper/*.xml # mapper文件路径，确保能扫描到mapper.xml文件
+server:
+  port: 7788
